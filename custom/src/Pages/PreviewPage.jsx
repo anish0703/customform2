@@ -15,7 +15,6 @@ const PreviewPage = () => {
     if (storedFormTitle) setFormTitle(storedFormTitle);
   }, []);
 
-  
   const validatePassword = (password) => {
     const minPasswordLength = 6;
     const maxPasswordLength = 12;
@@ -29,7 +28,6 @@ const PreviewPage = () => {
     return "";
   };
 
-  
   const validateField = (element, value) => {
     switch (element.type) {
       case "email":
@@ -41,25 +39,24 @@ const PreviewPage = () => {
       case "text":
       case "tel":
       case "date":
-        if (!value) return `${element.label} is required.`;
+        if (element.required && !value) return `${element.label} is required.`;
         break;
       case "password":
-        return validatePassword(value);
+        if (element.required) return validatePassword(value);
+        break;
       default:
         return "";
     }
     return "";
   };
 
-  
   const handleSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
-    
+
     let errors = {};
 
-    
     formElements.forEach((element) => {
       const value = data[element.label];
       const error = validateField(element, value);
@@ -76,14 +73,12 @@ const PreviewPage = () => {
 
     setFormSubmitted(true);
 
-    
     setTimeout(() => {
       alert("Form submitted successfully!");
       navigate("/form-builder");
     }, 1000);
   };
 
-  
   const renderFormElement = (element, index) => {
     const commonProps = {
       name: element.label,
@@ -101,14 +96,14 @@ const PreviewPage = () => {
       case "date":
         return (
           <div>
-            <input {...commonProps} type={element.type} required />
+            <input {...commonProps} type={element.type} required={element.required} />
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
           </div>
         );
       case "password":
         return (
           <div>
-            <input {...commonProps} type="password" required />
+            <input {...commonProps} type="password" required={element.required} />
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
           </div>
         );
@@ -129,6 +124,10 @@ const PreviewPage = () => {
       case "dropdown":
         return (
           <div>
+            {/* Display category name */}
+            {element.category && (
+              <p className="text-gray-600 bold mb-1">Category: {element.category}</p>
+            )}
             <select name={element.label} {...commonProps}>
               {element.options?.map((option, i) => (
                 <option key={i} value={option}>
@@ -165,13 +164,11 @@ const PreviewPage = () => {
     }
   };
 
-  
   const handleDelete = () => {
     localStorage.removeItem("formElements");
     localStorage.removeItem("formTitle");
     localStorage.removeItem("submittedFormData");
 
-    
     const deletedData = { title: formTitle, formElements: formElements };
     localStorage.setItem("deletedFormData", JSON.stringify(deletedData));
 
@@ -188,7 +185,9 @@ const PreviewPage = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {formElements.map((element, index) => (
             <div key={index} className="mb-4">
-              <label className="block font-medium text-gray-700 mb-2">{element.label}</label>
+              <label className="block font-medium text-gray-700 mb-2">
+                {element.label} {element.required && <span className="text-red-500">*</span>}
+              </label>
               {renderFormElement(element, index)}
             </div>
           ))}

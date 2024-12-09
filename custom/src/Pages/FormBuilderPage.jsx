@@ -150,6 +150,7 @@ const FormBuilderPage = () => {
           formTitle={formTitle}
           setFormTitle={setFormTitle} 
           formElements={formElements}
+          setFormElements={setFormElements} 
           onFormAreaDrop={onFormAreaDrop}
           onDragStart={onDragStart}
           onDragOver={onDragOver}

@@ -42,7 +42,7 @@ const Sidebar = ({
                 onClick={() => handleDeleteSavedForm(index)}
                 className="absolute top-2 right-2 text-red-500 font-bold"
               >
-                ❌
+              ❌
               </button>
             </div>
           ))}
