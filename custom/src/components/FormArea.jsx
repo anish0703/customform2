@@ -176,22 +176,22 @@ const FormArea = ({
                         Add Option
                       </button>
                     </div>
+
+                    {/* Category Selection - Only for Dropdown */}
+                    <label className="block text-sm font-medium text-gray-600 mt-4">
+                      Category
+                    </label>
+                    <input
+                      type="text"
+                      value={tempEdit.category || ""}
+                      onChange={(e) =>
+                        setTempEdit({ ...tempEdit, category: e.target.value })
+                      }
+                      placeholder="Enter custom category"
+                      className="border border-gray-300 rounded w-full p-2 mb-2 focus:ring-2 focus:ring-indigo-300"
+                    />
                   </>
                 )}
-
-                {/* Category Selection */}
-                <label className="block text-sm font-medium text-gray-600">
-                  Category
-                </label>
-                <input
-                  type="text"
-                  value={tempEdit.category || ""}
-                  onChange={(e) =>
-                    setTempEdit({ ...tempEdit, category: e.target.value })
-                  }
-                  placeholder="Enter custom category"
-                  className="border border-gray-300 rounded w-full p-2 mb-2 focus:ring-2 focus:ring-indigo-300"
-                />
 
                 <button
                   className="bg-green-500 text-white px-4 py-2 rounded mt-2"
