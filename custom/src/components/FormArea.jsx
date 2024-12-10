@@ -13,22 +13,24 @@ const FormArea = ({
 }) => {
   const [editingIndex, setEditingIndex] = useState(null);
   const [tempEdit, setTempEdit] = useState({});
-  const [userCategories, setUserCategories] = useState({});
+  const [newOption, setNewOption] = useState(""); // State to store the new option input value
+  const [categories] = useState(["General", "Personal", "Contact"]); // Predefined categories
 
   const handleEdit = (index) => {
+    const selectedElement = formElements[index];
     setEditingIndex(index);
-    setTempEdit({ ...formElements[index] });
+    setTempEdit({
+      ...selectedElement,
+      options: selectedElement.options || [], // Ensure options array exists
+    });
   };
 
   const saveEdit = (index) => {
     const updatedElements = [...formElements];
-    updatedElements[index] = {
-      ...tempEdit,
-      options: tempEdit.category ? userCategories[tempEdit.category] : tempEdit.options,
-    };
-    setFormElements(updatedElements);
-    localStorage.setItem("formElements", JSON.stringify(updatedElements)); // Save updated elements to localStorage
-    setEditingIndex(null);
+    updatedElements[index] = { ...tempEdit };
+    setFormElements(updatedElements); // Update state
+    localStorage.setItem("formElements", JSON.stringify(updatedElements)); // Persist to localStorage
+    setEditingIndex(null); // Exit editing mode
   };
 
   const cancelEdit = () => {
@@ -36,14 +38,20 @@ const FormArea = ({
     setTempEdit({});
   };
 
-  const saveCustomCategory = () => {
-    if (tempEdit.predefinedCategory && tempEdit.options) {
-      setUserCategories((prev) => ({
-        ...prev,
-        [tempEdit.predefinedCategory]: tempEdit.options,
-      }));
-      setTempEdit({ ...tempEdit, predefinedCategory: "" });
+  // Function to handle adding a new option to a dropdown
+  const addOptionToDropdown = () => {
+    if (newOption.trim()) {
+      const updatedOptions = [...tempEdit.options, newOption.trim()];
+      setTempEdit({ ...tempEdit, options: updatedOptions }); // Update tempEdit with the new option
+      setNewOption(""); // Clear the new option input
     }
+  };
+
+  // Function to handle changing the option name
+  const handleOptionChange = (optionIndex, newName) => {
+    const updatedOptions = [...tempEdit.options];
+    updatedOptions[optionIndex] = newName.trim(); // Update the specific option
+    setTempEdit({ ...tempEdit, options: updatedOptions }); // Update tempEdit with the new options
   };
 
   return (
@@ -65,7 +73,10 @@ const FormArea = ({
         className="border border-gray-300 rounded w-full p-2 mb-4 focus:ring-2 focus:ring-indigo-300"
       />
 
-      <div className="bg-white p-4 rounded shadow" style={{ maxHeight: "400px", overflowY: "auto" }}>
+      <div
+        className="bg-white p-4 rounded shadow"
+        style={{ maxHeight: "400px", overflowY: "auto" }}
+      >
         {formElements.map((element, index) => (
           <div
             key={index}
@@ -90,65 +101,97 @@ const FormArea = ({
 
             {editingIndex === index ? (
               <div className="p-2 border rounded bg-gray-50">
-                <label className="block text-sm font-medium text-gray-600">Edit Label</label>
+                <label className="block text-sm font-medium text-gray-600">
+                  Edit Label
+                </label>
                 <input
                   type="text"
                   value={tempEdit.label || ""}
-                  onChange={(e) => setTempEdit({ ...tempEdit, label: e.target.value })}
+                  onChange={(e) =>
+                    setTempEdit({ ...tempEdit, label: e.target.value })
+                  }
                   className="border border-gray-300 rounded w-full p-2 mb-2 focus:ring-2 focus:ring-indigo-300"
                 />
 
-                <label className="block text-sm font-medium text-gray-600">Is Required?</label>
+                <label className="block text-sm font-medium text-gray-600">
+                  Is Required?
+                </label>
                 <input
                   type="checkbox"
                   checked={tempEdit.required || false}
-                  onChange={(e) => setTempEdit({ ...tempEdit, required: e.target.checked })}
+                  onChange={(e) =>
+                    setTempEdit({ ...tempEdit, required: e.target.checked })
+                  }
                   className="mr-2"
                 />
                 <span>Required</span>
 
+                {/* Dropdown options editing */}
                 {tempEdit.type === "dropdown" && (
                   <>
-                    <label className="block text-sm font-medium text-gray-600">Edit Options</label>
-                    <textarea
-                      value={tempEdit.options?.join(", ") || ""}
-                      onChange={(e) =>
-                        setTempEdit({ ...tempEdit, options: e.target.value.split(",").map((o) => o.trim()) })
-                      }
-                      placeholder="Enter options separated by commas"
-                      className="border border-gray-300 rounded w-full p-2 focus:ring-2 focus:ring-indigo-300 mb-2"
-                    />
-                    <label className="block text-sm font-medium text-gray-600">Save as Category Name</label>
-                    <input
-                      type="text"
-                      placeholder="Enter category name"
-                      value={tempEdit.predefinedCategory || ""}
-                      onChange={(e) => setTempEdit({ ...tempEdit, predefinedCategory: e.target.value })}
-                      className="border border-gray-300 rounded w-full p-2 focus:ring-2 focus:ring-indigo-300 mb-2"
-                    />
-                    <button
-                      className="bg-indigo-500 text-white px-4 py-2 rounded mt-2"
-                      onClick={saveCustomCategory}
-                    >
-                      Save Category
-                    </button>
-                    <label className="block text-sm font-medium text-gray-600 mt-4">
-                      Use Existing Category
+                    <label className="block text-sm font-medium text-gray-600">
+                      Edit Options
                     </label>
-                    <select
-                      onChange={(e) => setTempEdit({ ...tempEdit, category: e.target.value })}
-                      className="border border-gray-300 rounded w-full p-2 focus:ring-2 focus:ring-indigo-300"
-                      value={tempEdit.category || ""}
-                    >
-                      <option value="">Select Category</option>
-                      {Object.keys(userCategories).map((category) => (
-                        <option key={category} value={category}>
-                          {category}
-                        </option>
+                    <div>
+                      {tempEdit.options?.map((option, optionIndex) => (
+                        <div key={optionIndex} className="flex mb-2">
+                          <input
+                            type="text"
+                            value={option}
+                            onChange={(e) =>
+                              handleOptionChange(optionIndex, e.target.value)
+                            }
+                            className="border border-gray-300 rounded w-full p-2 mr-2"
+                          />
+                          <button
+                            className="text-red-500 font-bold text-xl"
+                            onClick={() => {
+                              const updatedOptions = tempEdit.options.filter(
+                                (_, optIndex) => optIndex !== optionIndex
+                              ); // Remove selected option
+                              setTempEdit({
+                                ...tempEdit,
+                                options: updatedOptions,
+                              }); // Update options in edit mode
+                            }}
+                          >
+                            ❌
+                          </button>
+                        </div>
                       ))}
-                    </select>
+                    </div>
+
+                    <div className="mt-4">
+                      <input
+                        type="text"
+                        value={newOption}
+                        onChange={(e) => setNewOption(e.target.value)}
+                        placeholder="Add a new option"
+                        className="border border-gray-300 rounded w-full p-2 focus:ring-2 focus:ring-indigo-300"
+                      />
+                      <button
+                        className="bg-green-500 text-white px-4 py-2 rounded mt-2"
+                        onClick={addOptionToDropdown}
+                      >
+                        Add Option
+                      </button>
+                    </div>
                   </>
                 )}
+
+                {/* Category Selection */}
+                <label className="block text-sm font-medium text-gray-600">
+                  Category
+                </label>
+                <input
+                  type="text"
+                  value={tempEdit.category || ""}
+                  onChange={(e) =>
+                    setTempEdit({ ...tempEdit, category: e.target.value })
+                  }
+                  placeholder="Enter custom category"
+                  className="border border-gray-300 rounded w-full p-2 mb-2 focus:ring-2 focus:ring-indigo-300"
+                />
 
                 <button
                   className="bg-green-500 text-white px-4 py-2 rounded mt-2"
@@ -166,29 +209,33 @@ const FormArea = ({
             ) : (
               <>
                 <label className="block font-medium text-gray-600 mb-1">
-                  {element.label} {element.required && <span className="text-red-500">*</span>}
+                  {element.label}{" "}
+                  {element.required && <span className="text-red-500">*</span>}
                 </label>
-                {["text", "email", "number", "password", "tel"].includes(element.type) && (
+                {["text", "email", "number", "password", "tel"].includes(
+                  element.type
+                ) && (
                   <input
                     type={element.type}
                     placeholder={element.placeholder}
-                    className="border border-gray-300 rounded w-full p-2 focus:ring-2 focus:ring-indigo-300"
+                    className="border border-gray-300 rounded w-full p-2"
                     disabled
                   />
                 )}
                 {element.type === "dropdown" && (
                   <div>
-                    {element.category ? (
-                      <span className="block text-gray-600">Category: {element.category}</span>
-                    ) : (
-                      <select
-                        className="border border-gray-300 rounded w-full p-2 focus:ring-2 focus:ring-indigo-300"
-                        disabled
-                      >
-                        {element.options.map((opt, idx) => (
-                          <option key={idx}>{opt}</option>
-                        ))}
-                      </select>
+                    <select
+                      className="border border-gray-300 rounded w-full p-2"
+                      disabled
+                    >
+                      {element.options.map((opt, idx) => (
+                        <option key={idx}>{opt}</option>
+                      ))}
+                    </select>
+                    {element.category && (
+                      <p className="text-sm mt-2 text-gray-500">
+                        Category: {element.category}
+                      </p>
                     )}
                   </div>
                 )}

@@ -11,7 +11,14 @@ const PreviewPage = () => {
   useEffect(() => {
     const storedFormElements = JSON.parse(localStorage.getItem("formElements"));
     const storedFormTitle = localStorage.getItem("formTitle");
-    if (storedFormElements) setFormElements(storedFormElements);
+    if (storedFormElements) {
+      setFormElements(
+        storedFormElements.map((element) => ({
+          ...element,
+          options: element.type === "dropdown" ? element.options || [] : undefined,
+        }))
+      );
+    }
     if (storedFormTitle) setFormTitle(storedFormTitle);
   }, []);
 
@@ -83,7 +90,8 @@ const PreviewPage = () => {
     const commonProps = {
       name: element.label,
       placeholder: element.placeholder,
-      className: "w-full p-2 border border-gray-300 rounded focus:ring focus:ring-blue-300",
+      className:
+        "w-full p-2 border border-gray-300 rounded focus:ring focus:ring-blue-300",
     };
 
     const error = formErrors[element.label];
