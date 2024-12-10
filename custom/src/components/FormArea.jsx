@@ -13,24 +13,24 @@ const FormArea = ({
 }) => {
   const [editingIndex, setEditingIndex] = useState(null);
   const [tempEdit, setTempEdit] = useState({});
-  const [newOption, setNewOption] = useState(""); // State to store the new option input value
-  const [categories] = useState(["General", "Personal", "Contact"]); // Predefined categories
+  const [newOption, setNewOption] = useState(""); 
+  const [categories] = useState(["General", "Personal", "Contact"]); 
 
   const handleEdit = (index) => {
     const selectedElement = formElements[index];
     setEditingIndex(index);
     setTempEdit({
       ...selectedElement,
-      options: selectedElement.options || [], // Ensure options array exists
+      options: selectedElement.options || [], 
     });
   };
 
   const saveEdit = (index) => {
     const updatedElements = [...formElements];
     updatedElements[index] = { ...tempEdit };
-    setFormElements(updatedElements); // Update state
-    localStorage.setItem("formElements", JSON.stringify(updatedElements)); // Persist to localStorage
-    setEditingIndex(null); // Exit editing mode
+    setFormElements(updatedElements); 
+    localStorage.setItem("formElements", JSON.stringify(updatedElements)); 
+    setEditingIndex(null); 
   };
 
   const cancelEdit = () => {
@@ -38,20 +38,20 @@ const FormArea = ({
     setTempEdit({});
   };
 
-  // Function to handle adding a new option to a dropdown
+  
   const addOptionToDropdown = () => {
     if (newOption.trim()) {
       const updatedOptions = [...tempEdit.options, newOption.trim()];
-      setTempEdit({ ...tempEdit, options: updatedOptions }); // Update tempEdit with the new option
-      setNewOption(""); // Clear the new option input
+      setTempEdit({ ...tempEdit, options: updatedOptions }); 
+      setNewOption(""); 
     }
   };
 
-  // Function to handle changing the option name
+  
   const handleOptionChange = (optionIndex, newName) => {
     const updatedOptions = [...tempEdit.options];
-    updatedOptions[optionIndex] = newName.trim(); // Update the specific option
-    setTempEdit({ ...tempEdit, options: updatedOptions }); // Update tempEdit with the new options
+    updatedOptions[optionIndex] = newName.trim();
+    setTempEdit({ ...tempEdit, options: updatedOptions }); 
   };
 
   return (
@@ -148,11 +148,11 @@ const FormArea = ({
                             onClick={() => {
                               const updatedOptions = tempEdit.options.filter(
                                 (_, optIndex) => optIndex !== optionIndex
-                              ); // Remove selected option
+                              ); 
                               setTempEdit({
                                 ...tempEdit,
                                 options: updatedOptions,
-                              }); // Update options in edit mode
+                              }); 
                             }}
                           >
                             ❌

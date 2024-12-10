@@ -78,7 +78,7 @@ const PreviewPage = () => {
     const submittedData = { title: formTitle, formData: data };
     localStorage.setItem("submittedFormData", JSON.stringify(submittedData));
 
-    // Save the form elements (including options) back to localStorage after form submission
+    
     localStorage.setItem("formElements", JSON.stringify(formElements));
 
     setFormSubmitted(true);
